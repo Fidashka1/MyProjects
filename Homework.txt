@@ -1,0 +1,167 @@
+
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.IO;
+using System.Threading.Tasks;
+
+namespace Intro
+{
+    public class Product
+    {
+        public string Name
+        {
+            get; set;
+        }
+
+        public int Count
+        {
+            get; set;
+        }
+
+        public float Price
+        {
+            get; set;
+        }
+
+        public Product(string Name, int Count, float Price)
+        {
+            this.Name = Name;
+            this.Count = Count;
+            this.Price = Price;
+        }
+
+        public override string ToString()
+        {
+            return ($"Name ~ {this.Name}\nCount ~ {this.Count}\nPrice ~ {this.Price}");
+        }
+    }    
+}
+
+
+
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.IO;
+using System.Threading.Tasks;
+
+namespace Intro
+{
+    public class Kassa
+    {
+        private Dictionary<string, Product> Product_new;
+        public Kassa(params Product[] products)
+        {
+            Product_new = new Dictionary<string, Product>();
+            foreach (var Item in products)
+            {
+                this.Product_new.Add(Item.Name, Item);
+            }
+        }
+
+        public Product this[string Name]
+        {
+            get => this.Product_new[Name];
+        }
+
+        public void Add(Product Product)
+        {
+            if (Product_new.ContainsKey(Product.Name))
+                Product_new.Add(Product.Name, Product);
+        }
+
+        public void Add_Count(string Name, int Count)
+        {
+            if (Product_new.ContainsKey(Name))
+                this.Product_new[Name].Count = Count;
+        }
+
+        public void Price(string Name, int Price)
+        {
+            if (Product_new.ContainsKey(Name))
+                this.Product_new[Name].Price = Price;
+        }
+
+        public void Buying_Product(string Name)
+        {
+            if (Product_new.ContainsKey(Name))
+                this.Product_new[Name].Count--;
+        }
+
+        public void Remove(Product Product)
+        {
+            if (Product_new.ContainsKey(Product.Name))
+                this.Product_new.Remove(Product.Name);
+        }
+
+        public void JS(string where)
+        {
+            using (FileStream fs = new FileStream(where, FileMode.Create))
+            {
+                using (StreamWriter sw = new (fs))
+                {
+                    var Edition = new JsonSerializerOptions()
+                    {
+                        WriteIndented = true
+                    };
+                    var serializer = JsonSerializer.Serialize(this.Product_new, Edition);
+                    sw.Write(serializer);
+                }
+            }
+        }
+
+        public override string ToString()
+        {
+            var Total_Products = new StringBuilder(this.Product_new.Count * 5);
+            foreach (var Item in this.Product_new)
+            {
+                Total_Products.AppendLine(Item.Value.ToString());
+            }
+            return Total_Products.ToString();
+        }
+    }
+ }
+    
+
+
+
+using System;
+
+
+namespace Intro
+{
+    public class MainClass
+    {
+        public static void Main()
+        {
+            var Apple = new Product("Apple", 5, 10);
+            var Cottage_cheese = new Product("Cottage_cheese", 9, 5);
+            var Bread = new Product("Bread", 25, 3);
+            var Chocolate = new Product("Chocolate", 14, 2);
+            var Meat = new Product("Meat", 20, 20);
+
+            var Kassa = new Kassa(Meat);
+         
+            Kassa.Buying_Product("Meat");
+            Kassa.JS("Data.txt");
+
+            Console.WriteLine(Kassa.ToString());
+
+        }
+    }
+}
+
+
+
+
+
+
